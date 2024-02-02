@@ -1,0 +1,3 @@
+FROM alpine
+RUN apk add --update nodejs npm
+COPY ./demo.txt /usr/local/
