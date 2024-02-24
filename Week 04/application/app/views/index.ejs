@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo App</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-4">Todo List</h1>
+    <form id="new-todo-form" action="/todos" method="POST" class="my-4">
+        <div class="input-group">
+            <input type="text" name="name" class="form-control" placeholder="New task" required>
+            <div class="input-group-append">
+                <button type="submit" class="btn btn-primary">Add Todo</button>
+            </div>
+        </div>
+    </form>
+    <table class="table" id="todo-table">
+        <thead>
+        <tr>
+            <th scope="col">Task</th>
+            <th scope="col">Done</th>
+            <th scope="col">Actions</th>
+        </tr>
+        </thead>
+        <tbody id="todo-list">
+        <!-- Todos will be inserted here -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Get all todos
+        $.get('/todos', function(data) {
+            data.forEach(function(todo) {
+                $('#todo-list').append('<tr><td>' + todo.name + '</td><td>' + (todo.done ? 'Yes' : 'No') + '</td><td><button class="btn btn-danger delete-todo" data-id="' + todo._id + '">Delete</button></td></tr>');
+            });
+        });
+
+        // Create a new todo
+        $('#new-todo-form').on('submit', function(e) {
+            e.preventDefault();
+
+            var todoName = $(this).find('input[name="name"]').val();
+
+            $.post('/todos', { name: todoName }, function(data) {
+                // Add the new todo to the list
+                $('#todo-list').append('<tr><td>' + data.name + '</td><td>No</td><td><button class="btn btn-danger delete-todo" data-id="' + data._id + '">Delete</button></td></tr>');
+                // Clear the input field
+                $('#new-todo-form input').val('');
+            });
+        });
+
+        // Delete a todo
+        $(document).on('click', '.delete-todo', function() {
+            var todoId = $(this).data('id');
+
+            $.ajax({
+                url: '/todos/' + todoId,
+                type: 'DELETE',
+                success: function(data) {
+                    console.log('Todo deleted!');
+                    $('button[data-id="' + todoId + '"]').closest('tr').remove();
+                }
+            });
+        });
+
+        $.get('/server-info', function(data) {
+            $('#footer-content').text('Server: ' + data.serverName + ', Time: ' + data.serverTime);
+        });
+    });
+</script>
+
+<footer class="footer mt-auto py-3 bg-light">
+    <div class="container">
+        <span class="text-muted" id="footer-content">Loading...</span>
+    </div>
+</footer>
+
+</body>
+</html>

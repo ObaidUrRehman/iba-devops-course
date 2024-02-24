@@ -1,0 +1,7 @@
+﻿Week 03/.idea
+Week 04/.idea
+*.env
+Week 05/terraform-aws/.terraform
+Week 05/terraform-aws/terraform.tfstate.backup
+Week 05/terraform-aws/terraform.tfstate
+Week 05/terraform-aws/.terraform.lock.hcl
