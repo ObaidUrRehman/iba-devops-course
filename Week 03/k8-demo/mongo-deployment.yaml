@@ -1,45 +1,53 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1 # Specifies the API version for the Deployment
+kind: Deployment # Defines the resource type Deployment
 metadata:
-  name: mongo-deployment
+  name: mongo-deployment # The name of the Deployment
   labels:
-    app: mongo-db
+    app: mongo-db # Labels the Deployment for easier querying and management
 spec:
-  replicas: 1
-  selector: # deployment to pod mapping
+  replicas: 1 # Specifies that only one replica of the pod should be running
+  selector: # Defines how the Deployment finds the pods it manages
     matchLabels:
-      app: mongo-db
-  template:
+      app: mongo-db # The Deployment manages pods with this label
+  template: # The pod template used by the Deployment to create new pods
     metadata:
       labels:
-        app: mongo-db # pod labels
-    spec:
-      containers:
-        - name: mongodb
-          image: mongo:5.0
-          ports:
-            - containerPort: 27017
-          env:
-            - name: MONGO_INITDB_ROOT_USERNAME
-              valueFrom:
+        app: mongo-db # Labels assigned to the pods created from this template
+    spec: # The specification of the pods created by this Deployment
+      containers: # The container(s) that should be part of the pods
+        - name: mongodb # The name of the container
+          image: mongo:5.0 # The Docker image to use for the container
+          ports: # The ports that the container listens to
+            - containerPort: 27017 # MongoDB default port
+          env: # Environment variables to set in the container
+            - name: MONGO_INITDB_ROOT_USERNAME # MongoDB admin username
+              valueFrom: # Specifies that the value will be read from a Secret
                 secretKeyRef:
-                  name: mongo-secret
-                  key: mongo-user
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              valueFrom:
+                  name: mongo-secret # The name of the Secret resource containing the value
+                  key: mongo-user # The key in the Secret resource to use
+            - name: MONGO_INITDB_ROOT_PASSWORD # MongoDB admin password
+              valueFrom: # Specifies that the value will also be read from a Secret
                 secretKeyRef:
-                  name: mongo-secret
-                  key: mongo-password
+                  name: mongo-secret # The Secret resource name
+                  key: mongo-password # The key within the Secret resource
+
 ---
+
 # Service
-apiVersion: v1
-kind: Service
+apiVersion: v1 # API version for the Service
+kind: Service # Resource type Service
 metadata:
-  name: mongo-service
+  name: mongo-service # Name of the Service
 spec:
   selector:
-    app: mongo-db
+    app: mongo-db # Selects pods with this label to expose through the Service
   ports:
-    - protocol: TCP
-      port: 27017
-      targetPort: 27017
+    - protocol: TCP # The protocol used by the Service
+      port: 27017 # The port the Service listens on
+      targetPort: 27017 # The target port on the pods to forward traffic to
+
+
+# This YAML file creates a Deployment for running a MongoDB instance and a corresponding Service for network access.
+# The Deployment ensures a single replica of a MongoDB pod is running, using the official mongo:5.0 image.
+# It defines necessary environment variables for MongoDB initialization, referencing a Kubernetes Secret called 'mongo-secret'.
+# The Service 'mongo-service' enables network access to the MongoDB pod at the specified port, facilitating interaction from other pods.

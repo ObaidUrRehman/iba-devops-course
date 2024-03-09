@@ -1,51 +1,58 @@
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: apps/v1 # Specifies the API version for the deployment
+kind: Deployment # Defines the kind of Kubernetes resource, in this case, a Deployment
 metadata:
-  name: webapp-deployment
-  labels:
-    app: webapp
-spec:
-  replicas: 5
-  selector:
+  name: webapp-deployment # Names the deployment for future referencing
+  labels: # Assigns labels to the deployment for organization and selection purposes
+    app: webapp # Key-value pair label; can be used for service to deployment mapping
+spec: # Specifies the desired state of the deployment
+  replicas: 5 # Indicates the desired number of pod instances
+  selector: # Selector to identify the set of pods that this deployment should manage
     matchLabels:
-      app: webapp
-  template:
+      app: webapp # Matches labels to link the deployment with corresponding pods
+  template: # Template for the pods that the deployment manages
     metadata:
       labels:
-        app: webapp
-    spec:
-      containers:
-        - name: webapp
-          image: obaidr/demo-k8-app
-          ports:
-            - containerPort: 3000
-          env:
-            - name: USER_NAME
-              valueFrom:
+        app: webapp # Labels applied to all pods created by this deployment
+    spec: # Specification for the pods
+      containers: # Container specification within the pod
+        - name: webapp # Name of the container
+          image: obaidr/demo-k8-app # The Docker image to use for the container
+          ports: # Ports configuration for the container
+            - containerPort: 3000 # Container port to which the application is bound
+          env: # Environment variables for the container
+            - name: USER_NAME # Environment variable for the user name
+              valueFrom: # Specifies that the value should be fetched from a secret
                 secretKeyRef:
-                  name: mongo-secret
-                  key: mongo-user
-            - name: USER_PWD
-              valueFrom:
+                  name: mongo-secret # Name of the secret resource to fetch from
+                  key: mongo-user # Key within the secret resource to fetch
+            - name: USER_PWD # Environment variable for the user password
+              valueFrom: # Specifies that the value should be fetched from a secret
                 secretKeyRef:
-                  name: mongo-secret
-                  key: mongo-password
-            - name: DB_URL
-              valueFrom:
+                  name: mongo-secret # Name of the secret resource to fetch from
+                  key: mongo-password # Key within the secret resource to fetch
+            - name: DB_URL # Environment variable for the database URL
+              valueFrom: # Specifies that the value should be fetched from a ConfigMap
                 configMapKeyRef:
-                  name: mongo-config
-                  key: mongo-url
+                  name: mongo-config # Name of the ConfigMap resource to fetch from
+                  key: mongo-url # Key within the ConfigMap resource to fetch
 ---
-apiVersion: v1
-kind: Service
+apiVersion: v1 # Specifies the API version for the service
+kind: Service # Defines the kind of Kubernetes resource, in this case, a Service
 metadata:
-  name: webapp-service
+  name: webapp-service # Names the service for future referencing
 spec:
-  type: NodePort
+  type: NodePort # Specifies the type of service; NodePort exposes the service on each node's IP
   selector:
-    app: webapp
-  ports:
-    - protocol: TCP
-      port: 3000
-      targetPort: 3000
-      nodePort: 30100 #external port into k8 cluster
+    app: webapp # Links the service to pods with the corresponding label
+  ports: # Ports configuration for the service
+    - protocol: TCP # Network protocol used by the service
+      port: 3000 # The port on which the service is exposed
+      targetPort: 3000 # The port on the pod that the service forwards to
+      nodePort: 30100 # The port exposed on each node for external access
+
+# Overview:
+# This YAML file defines a Kubernetes Deployment and a Service for a web application.
+# The Deployment creates five replicas of a webapp container, configured with environment variables
+# for a user name, password, and database URL, pulled from a Kubernetes Secret and a ConfigMap.
+# The Service exposes the web application externally via a NodePort, allowing access on port 30100
+# on each node's IP address.
