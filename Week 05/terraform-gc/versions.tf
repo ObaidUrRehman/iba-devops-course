@@ -12,3 +12,4 @@ terraform {
   required_version = ">= 0.14"
 }
 
+# Defines some versioning requirements.
