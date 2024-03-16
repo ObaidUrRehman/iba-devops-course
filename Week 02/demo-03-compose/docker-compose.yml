@@ -1,35 +1,36 @@
 services:
+  # Section for defining services. Each service runs in its own container.
 
-# Database --------------------------
-  database-container:
-    image: mariadb:10.6.4-focal
-    #image: mysql:8.0.27
-    command: '--default-authentication-plugin=mysql_native_password'
+  # Database service --------------------------
+  database-container: # Name of the service, used internally by Docker Compose.
+    image: mariadb:10.6.4-focal # Specifies the Docker image to use for the container. This uses MariaDB version 10.6.4 based on Ubuntu Focal.
+    # Alternative option commented out: Use MySQL 8.0.27 as the database image.
+    command: '--default-authentication-plugin=mysql_native_password' # Custom command to start the MariaDB server with a specific authentication plugin.
     volumes:
-      - db_data:/var/lib/mysql
-    restart: always
-    environment:
-      - MYSQL_ROOT_PASSWORD=somewordpress
-      - MYSQL_DATABASE=wordpress
-      - MYSQL_USER=wordpress
-      - MYSQL_PASSWORD=wordpress
-    expose:
-      - 3306
-      - 33060
+      - db_data:/var/lib/mysql # Mounts a volume named 'db_data' to the container's /var/lib/mysql directory, for data persistence.
+    restart: always # Ensures the container always restarts if it stops for any reason.
+    environment: # Environment variables passed to the container, used for MariaDB configuration.
+      - MYSQL_ROOT_PASSWORD=somewordpress # Sets the root password for MariaDB.
+      - MYSQL_DATABASE=wordpress # The name of the database to create automatically.
+      - MYSQL_USER=wordpress # Username for the database.
+      - MYSQL_PASSWORD=wordpress # Password for the database user.
+    expose: # Ports to expose within the internal network, not to the host machine. Useful for inter-container communication.
+      - 3306 # Default MariaDB port.
+      - 33060 # MariaDB's default port for X Protocol.
 
-
-  # Wordpress -------------------------- 
-  wordpress-container:
-    image: wordpress:latest
+  # WordPress service --------------------------
+  wordpress-container: # Name of the WordPress service.
+    image: wordpress:latest # Uses the latest WordPress Docker image.
     ports:
-      - 80:80
-    restart: always
-    environment:
-      - WORDPRESS_DB_HOST=database-container
-      - WORDPRESS_DB_USER=wordpress
-      - WORDPRESS_DB_PASSWORD=wordpress
-      - WORDPRESS_DB_NAME=wordpress
-    depends_on:
+      - 80:80 # Maps port 80 on the host to port 80 on the container, making the WordPress site accessible via the host's IP address.
+    restart: always # Container restart policy.
+    environment: # Environment variables for WordPress configuration.
+      - WORDPRESS_DB_HOST=database-container # Sets the WordPress database host to the database-container service.
+      - WORDPRESS_DB_USER=wordpress # Database username.
+      - WORDPRESS_DB_PASSWORD=wordpress # Database password.
+      - WORDPRESS_DB_NAME=wordpress # Database name.
+    depends_on: # Specifies that the wordpress-container service depends on the database-container service. Ensures database-container starts first.
       - database-container
+
 volumes:
-  db_data:
+  db_data: # Defines a named volume 'db_data' for data persistence. This volume is used by the database-container service.

@@ -1,6 +1,26 @@
+# This line specifies the base image from which you are building your Docker image. In this case, 
+# you're using the 'node:alpine' image. 'node' indicates that the image comes with Node.js installed, 
+# and 'alpine' refers to the lightweight Alpine Linux distribution that is used as the base OS in the image. 
+# Alpine is often chosen for its small size and security by default, making your Docker images faster to pull and more secure.
 FROM node:alpine
 
+# This instruction sets the working directory inside your Docker container. If the specified directory 
+# doesn't exist, Docker will create it for you. Any subsequent instructions in the Dockerfile (like COPY or RUN) 
+# will be executed in this directory. Here, '/app' is used as a common convention for the root of your application.
 WORKDIR /app
+
+# The COPY instruction copies new files or directories from source and adds them to the filesystem of the container 
+# at the path destination. Here, it copies everything from the current directory (where the Dockerfile is located) 
+# into the '/app' directory inside the container. This includes all your application code and files.
 COPY . .
+
+# This RUN instruction will execute any commands in a new layer on top of the current image and commit the results. 
+# The resulting committed image will be used for the next step in the Dockerfile. Here, `yarn install --production` 
+# installs only the dependencies listed in your package.json necessary for production, omitting any devDependencies.
 RUN yarn install --production
+
+# The CMD instruction provides defaults for an executing container. Here, it defines the default command to 
+# run when the container starts. In this case, it's "node src/index.js", which starts your Node.js application 
+# by executing the index.js file located in the 'src' directory. The CMD instruction is executed in the environment 
+# defined by the base image (node:alpine in this case) and the modifications made in the Dockerfile.
 CMD ["node", "src/index.js"]
