@@ -1,3 +1,11 @@
+## Google microservice demo
+
+https://github.com/GoogleCloudPlatform/microservices-demo
+
+```
+helm upgrade onlineboutique oci://us-docker.pkg.dev/online-boutique-ci/charts/onlineboutique --install
+```
+
 ## Grafan Prometheus Hands-on
 
 ### Install Helm
@@ -45,13 +53,21 @@ kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-passwor
 
 #### Windows/Powershell:
 
-[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pass))
+```
 $pass = kubectl get secret --namespace default grafana -o jsonpath="{.data.admin-password}"
 
-## Add prometheus data source
+[System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($pass))
+```
+
+## Add prometheus data source in Graphana
+
+This can be found when the prometheus server was exposed.
 
 ## Add Dashboard
 
 https://grafana.com/grafana/dashboards/315-kubernetes-cluster-monitoring-via-prometheus/
 
 https://grafana.com/grafana/dashboards/6417-kubernetes-cluster-prometheus/
+
+`container_memory_working_set_bytes`
+https://spring.academy/guides/kubernetes-prometheus-grafana
